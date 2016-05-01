@@ -12,7 +12,7 @@ sess = tf.Session()
 
 list_a = tf.constant([1, 3, 4, 2])
 
-argmax = tf.argmax(list_a, dimension=0)
+argmax = tf.argmax(list_a, dimension=0, name="argmax")
 
 result = sess.run(argmax)
 
