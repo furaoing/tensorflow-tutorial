@@ -2,13 +2,13 @@
 
 import tensorflow as tf
 import numpy as np
+rng = np.random
+x_data = tf.constant(1, 'float32', [13, 3])
+y_data = tf.constant(1, 'float32', [3, 1])
 
-x_data = tf.constant(1, 'int8', [2, 1])
-y_data = tf.constant(1, 'int8', [2, 1])
 
-op = tf.matmul(x_data, tf.transpose(y_data))
+op = tf.matmul(x_data, y_data)
 
-with tf.Session as sess:
+with tf.Session() as sess:
     result = sess.run(op)
-
     print(result)
