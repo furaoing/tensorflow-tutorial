@@ -5,6 +5,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+import copy
 
 
 def plot_data_set(X, y, Xtest, ytest, Xval, yval):
@@ -35,14 +36,28 @@ yval = mat_file_data.get("yval")
 
 #plot_data_set(X, y, Xtest, ytest, Xval, yval)
 
-DEGREE = 2
-LAMBDA = 1
-LEARNING_RATE = 0.00000001
-EPOCHES = 1600
-Xtrain_iter = map(lambda x: [math.pow(x, degree) for degree in range(1, DEGREE+1)], X)
-Xtrain = list(Xtrain_iter)
+DEGREE = 1
+LAMBDA = 0
+LEARNING_RATE = 0.005
+EPOCHES = 2000
 
-Xtrain = np.array(Xtrain)
+
+def X2Vec(X, DEGREE):
+    abs_X = np.absolute(X)
+    max_index = np.argmax(abs_X)
+    Xtrain_iter = map(lambda x: [math.pow(x, degree) for degree in range(1, DEGREE + 1)], X)
+    Xtrain = list(Xtrain_iter)
+
+    max_list = copy.deepcopy(Xtrain[max_index])
+    for i in range(len(Xtrain)):
+        for j in range(len(Xtrain[0])):
+            Xtrain[i][j] = Xtrain[i][j]/abs(max_list[j])
+
+    Xtrain = np.array(Xtrain)
+    return Xtrain
+
+a = X2Vec(X, DEGREE)
+c = 1
 placeholder_X = tf.placeholder("float32", [None, DEGREE])
 placeholder_Y = tf.placeholder("float32", [None, 1])
 W = tf.Variable(initial_value=tf.constant(1.0, shape=[DEGREE, 1]), name="weight")
@@ -64,10 +79,10 @@ with tf.Session() as sess:
     cost_list = []
 
     for epoch in range(EPOCHES):
-        sess.run(optimizer, feed_dict={placeholder_X: Xtrain, placeholder_Y: y})
+        sess.run(optimizer, feed_dict={placeholder_X: X2Vec(X, DEGREE), placeholder_Y: y})
 
-        c = sess.run(cost, feed_dict={placeholder_X: Xtrain, placeholder_Y: y})
-        predict = sess.run(h, feed_dict={placeholder_X: Xtrain, placeholder_Y: y})
+        c = sess.run(cost, feed_dict={placeholder_X: X2Vec(X, DEGREE), placeholder_Y: y})
+        predict = sess.run(h, feed_dict={placeholder_X: X2Vec(X, DEGREE), placeholder_Y: y})
         cost_list.append(c)
         print("Cost: %f" % c)
 

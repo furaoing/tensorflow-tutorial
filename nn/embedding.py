@@ -6,12 +6,12 @@ import time
 
 dataset = tf.random_normal([500, 10])
 
-learning_rate = 0.001
+learning_rate = 0.000000000001
 training_epochs = 5000
 display_step = 1
 
-n_hidden_1 = 5
-n_hidden_2 = 5
+n_hidden_1 = 50
+n_hidden_2 = 50
 n_input = 10
 n_classes = 10
 
@@ -19,15 +19,15 @@ x = tf.placeholder("float", [None, n_input])
 y = tf.placeholder("float", [None, n_classes])
 
 weights = {
-    'h1': tf.Variable(tf.random_normal([n_input, n_hidden_1])),
-    'h2': tf.Variable(tf.random_normal([n_hidden_1, n_hidden_2])),
-    'out': tf.Variable(tf.random_normal([n_hidden_2, n_classes]))
+    'h1': tf.Variable(tf.constant(1.0, shape=[n_input, n_hidden_1])),
+    'h2': tf.Variable(tf.constant(1.0, shape=[n_hidden_1, n_hidden_2])),
+    'out': tf.Variable(tf.constant(1.0, shape=[n_hidden_2, n_classes]))
 }
 
 biases = {
-    'b1': tf.Variable(tf.random_normal([n_hidden_1])),
-    'b2': tf.Variable(tf.random_normal([n_hidden_2])),
-    'out': tf.Variable(tf.random_normal([n_classes])),
+    'b1': tf.Variable(tf.constant(1.0, shape=[n_hidden_1])),
+    'b2': tf.Variable(tf.constant(1.0, shape=[n_hidden_2])),
+    'out': tf.Variable(tf.constant(1.0, shape=[n_classes])),
 }
 
 
@@ -50,7 +50,7 @@ init = tf.initialize_all_variables()
 
 a = time.time()
 with tf.Session() as sess:
-    with tf.device("/gpu:0"):
+    with tf.device("/cpu"):
         sess.run(init)
 
         for epoch in range(training_epochs):
