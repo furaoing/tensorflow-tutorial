@@ -36,10 +36,10 @@ yval = mat_file_data.get("yval")
 
 #plot_data_set(X, y, Xtest, ytest, Xval, yval)
 
-DEGREE = 1
-LAMBDA = 0
+DEGREE = 8
+LAMBDA = 0.001
 LEARNING_RATE = 0.005
-EPOCHES = 2000
+EPOCHES = 3000
 
 
 def X2Vec(X, DEGREE):

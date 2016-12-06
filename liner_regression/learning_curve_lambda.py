@@ -25,21 +25,22 @@ def plot_data_set(X, y, Xtest, ytest, Xval, yval):
 mat_file_name = "ex5data1.mat"
 mat_file_data = loadmat(mat_file_name)
 
-Xval = mat_file_data.get("X")
-yval = mat_file_data.get("y")
+X = mat_file_data.get("X")
+y = mat_file_data.get("y")
 
 Xtest = mat_file_data.get("Xtest")
 ytest = mat_file_data.get("ytest")
 
-X = mat_file_data.get("Xval")
-y = mat_file_data.get("yval")
+Xval = mat_file_data.get("Xval")
+yval = mat_file_data.get("yval")
 
-plot_data_set(X, y, Xtest, ytest, Xval, yval)
+#plot_data_set(X, y, Xtest, ytest, Xval, yval)
 
 DEGREE = 8
-LAMBDA = 0.01
-LEARNING_RATE = 0.001
-EPOCHES = 500
+LAMBDA_range = [0, 0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1, 3, 10]
+LEARNING_RATE = 0.005
+EPOCHES = 3000
+
 
 def X2Vec(X, DEGREE):
     abs_X = np.absolute(X)
@@ -57,6 +58,7 @@ def X2Vec(X, DEGREE):
 
 placeholder_X = tf.placeholder("float32", [None, DEGREE])
 placeholder_Y = tf.placeholder("float32", [None, 1])
+placeholder_lambda = tf.placeholder("float32")
 W = tf.Variable(initial_value=tf.constant(1.0, shape=[DEGREE, 1]), name="weight")
 b = tf.Variable(initial_value=[1.0], name="bias")
 
@@ -64,7 +66,7 @@ b = tf.Variable(initial_value=[1.0], name="bias")
 
 h = tf.add(tf.matmul(placeholder_X, W), b)
 
-regulation_term = tf.reduce_mean(tf.square(W))*LAMBDA
+regulation_term = tf.reduce_mean(tf.square(W))*placeholder_lambda
 h_error = tf.reduce_mean(tf.square(placeholder_Y - h))
 cost = h_error + regulation_term # objective function
 optimizer = tf.train.GradientDescentOptimizer(LEARNING_RATE).minimize(cost)
@@ -76,24 +78,21 @@ with tf.Session() as sess:
 
     trainingset_error_list = []
     validationset_error_list = []
-    test_error_list = []
 
-    for n in range(2, len(X)):
-        print("Start Training N=%d" % n)
+    n = len(X)
+    for lam in LAMBDA_range:
+        print("Start Training Lambda=%d" % lam)
         for epoch in range(EPOCHES):
-            sess.run(optimizer, feed_dict={placeholder_X: X2Vec(X, DEGREE)[:n], placeholder_Y: y[:n]})
+            sess.run(optimizer, feed_dict={placeholder_X: X2Vec(X, DEGREE)[:n], placeholder_Y: y[:n], placeholder_lambda: lam})
 
         trainingset_error = sess.run(h_error, feed_dict={placeholder_X: X2Vec(X, DEGREE)[:n], placeholder_Y: y[:n]})
-        validationset_error = sess.run(h_error, feed_dict={placeholder_X: X2Vec(Xval, DEGREE), placeholder_Y: yval})
-        test_error = sess.run(h_error, feed_dict={placeholder_X: X2Vec(Xtest, DEGREE), placeholder_Y: ytest})
-        
+        validationset_error = sess.run(h_error, feed_dict={placeholder_X: X2Vec(Xval, DEGREE)[:n], placeholder_Y: yval[:n]})
         trainingset_error_list.append(trainingset_error)
         validationset_error_list.append(validationset_error)
-        test_error_list.append(test_error)
 
 
-    plt.plot(range(2, len(X)), trainingset_error_list, "bs", label="Training Error")
-    plt.plot(range(2, len(X)), validationset_error_list, "ro", label="Validation Error")
-    plt.plot(range(2, len(X)), test_error_list, label="Test Error")
+    plt.plot(LAMBDA_range, trainingset_error_list, "bs", label="Training Error")
+    plt.plot(LAMBDA_range, validationset_error_list, "ro", label="Validation Error")
     plt.legend()
     plt.show()
+
