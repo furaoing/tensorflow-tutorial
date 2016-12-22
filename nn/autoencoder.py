@@ -3,17 +3,17 @@
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 import time
+import random
+dataset = [[1,3,5,7,9],[1,3,5,7,9],[2,4,6,8,10],[2,4,6,8,10],[1,3,5,7,9],[2,4,6,8,10]]
 
-dataset = tf.random_normal([500, 10])
-
-learning_rate = 0.000000000001
+learning_rate = 0.0000000000048
 training_epochs = 5000
 display_step = 1
 
 n_hidden_1 = 50
 n_hidden_2 = 50
-n_input = 10
-n_classes = 10
+n_input = 5
+n_classes = 5
 
 x = tf.placeholder("float", [None, n_input])
 y = tf.placeholder("float", [None, n_classes])
@@ -55,9 +55,9 @@ with tf.Session() as sess:
 
         for epoch in range(training_epochs):
             avg_cost = 0
-
-            _, c = sess.run([optimizer, cost], feed_dict={x: dataset.eval(),
-                                                          y: dataset.eval()})
+            random.shuffle(dataset)
+            _, c = sess.run([optimizer, cost], feed_dict={x: dataset,
+                                                          y: dataset})
 
             avg_cost += c
 
@@ -67,6 +67,6 @@ with tf.Session() as sess:
 
         correct_prediction = tf.equal(tf.argmax(proc, 1), tf.argmax(y, 1))
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-        print("Accuracy: %f" % (accuracy.eval({x: dataset.eval(), y: dataset.eval()})))
+        print("Accuracy: %f" % (accuracy.eval({x: dataset, y: dataset})))
 b = time.time()
 print("Time Elapsed: %f" % (b-a))
