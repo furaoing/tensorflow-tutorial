@@ -1,23 +1,29 @@
 """
 Pekka Aalto 2017
+
 This snippet tries to explain by example what deepmind means
 in https://arxiv.org/abs/1708.04782
 about embedding on channel axis being equivalent to
 one-hot-encoding followed by 1x1 conv.
+
 They write:
+
 "We embed all feature layers containing categorical values
 into a continuous space which is equivalent to using
 a one-hot encoding in the channel dimension
 followed by a 1 ⇥ 1 convolution."
+
 However, there are still two possible ways to do this. Either
 1) concatenating
 or
 2) summing
 the embeddings of each feature on channel dimension.
+
 As mentioned in the deepmind-paper, both can be done as
 - embedding lookup
 or
 - one-hot -> 1x1
+
 However, we still don't know if they eventually concatenated or summed the embeddings.
 """
 
@@ -25,21 +31,19 @@ import tensorflow as tf
 from tensorflow.contrib import layers
 import numpy as np
 
-# CONSTANTS
-
+#### CONSTANTS
 embedding_dim = 8
 H = W = 32
 n_cat_by_feature = [3, 10, 2]  # so 3 categorical features e.g player_relative, unit_type, is_creep
 
 # will use this to set the weights for every category in every methodology
-initial_emb_weightnp.random.rand(n, embedding_dim) for n in n_cat_by_feature]
+initial_emb_weights = [np.random.rand(n, embedding_dim) for n in n_cat_by_feature]
 
 # the actual features
 features = [
     tf.placeholder(shape=[H, W], dtype="int32", name="feat%d" % i)
     for i, _ in enumerate(n_cat_by_feature)
 ]
-
 
 # 1.1) embed on channel -> concat on channel
 embedded1 = []
@@ -53,7 +57,6 @@ for f, n, w in zip(features, n_cat_by_feature, initial_emb_weights):
     embedded1.append(e)
 
 out11 = tf.concat(embedded1, axis=2)
-
 
 # 1.2) onehot on channel -> 1x1 conv separately -> concat on channel
 embedded2 = []
